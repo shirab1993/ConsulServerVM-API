@@ -1,0 +1,84 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "consul-server" do |consul|
+    consul.vm.box = "ubuntu/bionic64"
+    consul.vm.hostname = "consul-server"
+   consul.vm.network "private_network", ip: "192.168.50.10"
+
+    consul.vm.provider "virtualbox" do |vb|
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+
+    consul.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y unzip
+
+      # Download and extract Consul binary
+      wget https://releases.hashicorp.com/consul/1.10.3/consul_1.10.3_linux_amd64.zip -P /tmp/
+      unzip /tmp/consul_1.10.3_linux_amd64.zip -d /usr/local/bin/
+
+      # Create Consul config file
+      sudo mkdir -p /etc/consul.d
+      echo '{
+        "datacenter": "mydatacenter",
+        "data_dir": "/var/consul",
+        "log_level": "INFO",
+        "node_name": "consul-server",
+        "server": true,
+        "bootstrap_expect": 1,
+        "ui": true,
+        "bind_addr": "192.168.50.10",
+        "client_addr": "0.0.0.0",
+        "retry_join": ["192.168.50.11", "192.168.50.12", "192.168.50.13"]
+      }' | sudo tee /etc/consul.d/consul.hcl
+
+      # Create Consul service file
+      echo '[Unit]
+      Description=Consul service
+      Requires=network-online.target
+      After=network-online.target
+
+      [Service]
+      User=root
+      Group=root
+      ExecStart=/usr/local/bin/consul agent -config-dir=/etc/consul.d/
+      ExecReload=/bin/kill -HUP $MAINPID
+      KillSignal=SIGINT
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target' | sudo tee /etc/systemd/system/consul.service
+
+      # Enable and start Consul service
+       sudo systemctl enable consul.service
+       sudo systemctl start consul.service
+	   
+	  # Install Docker prerequisites
+       sudo apt-get update
+       sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+    
+      # Add Docker's official GPG key
+       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    
+      # Add Docker's stable repository
+       sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    
+      # Install Docker
+       sudo apt-get update
+       sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+    
+      # Add the vagrant user to the docker group
+       sudo usermod -aG docker vagrant
+	  # Build docker image
+	   docker build -t api .
+	  # Run docker container
+	   docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api
+
+	   
+    SHELL
+  end
+end

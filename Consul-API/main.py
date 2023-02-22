@@ -1,8 +1,4 @@
 from flask import Flask, jsonify
-import requests
-import os
-import psutil
-import docker
 from EndpointAction import EndpointAction as RoutesHandler
 import EndpointAction
 

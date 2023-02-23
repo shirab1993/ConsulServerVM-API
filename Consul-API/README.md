@@ -33,9 +33,9 @@ cd /vagrant
 ~~~
 2. Run docker commands:
 ~~~
-chmod +x docker_build_run.sh
-~~~
 docker build -t api .
+~~~
+
 ~~~
 docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api
 ~~~

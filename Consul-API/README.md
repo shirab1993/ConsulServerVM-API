@@ -31,13 +31,13 @@ The script excute the commands:
 ~~~
 cd /vagrant
 ~~~
-2. Execute the script: docker_build_run.sh
+2. Run docker commands:
 ~~~
-chmod +x docker_build_run.sh
+docker build -t api .
 ~~~
 
 ~~~
-./docker_build_run.sh
+docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api
 ~~~
 The script excute the commands:
 `docker build -t api .` use Dockerfile to build a docker image called api, and run python api service .

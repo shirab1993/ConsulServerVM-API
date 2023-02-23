@@ -27,7 +27,11 @@ The script excute the commands:
  
  
 ### Step two
-1. Execute the script: docker_build_run.sh
+1.change directory to: 
+~~~
+cd /vagrant
+~~~
+2. Execute the script: docker_build_run.sh
 ~~~
 chmod +x docker_build_run.sh
 ~~~

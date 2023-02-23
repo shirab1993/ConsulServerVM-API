@@ -15,11 +15,11 @@ class EndpointAction:
 
             # If the response is successful, return a JSON response with status 0 and success message
             if response.status_code == 200:
-                return jsonify({'status': 0, 'message': 'Consul server is running.'})
+                return jsonify({'status': 1, 'message': 'Consul server is running.'})
 
             # If the response is not successful, return a JSON response with status 1 and error message
             else:
-                return jsonify({'status': 1, 'message': 'Consul server unavailable.'})
+                return jsonify({'status': 0, 'message': 'Consul server unavailable.'})
 
         # If there is an exception, return a JSON response with status 1 and error message
         except Exception as e:
@@ -60,7 +60,7 @@ class EndpointAction:
 
 def error_handler(error_type, error_message):
     return jsonify(
-        {'status': 1, 'message': 'An error occurred while getting the ' + error_type + 'information. The error is: ' +
+        {'status': 0, 'message': 'An error occurred while getting the ' + error_type + 'information. The error is: ' +
                                  error_message})
 
 

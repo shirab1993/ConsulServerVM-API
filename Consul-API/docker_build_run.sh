@@ -1,6 +1,4 @@
 #!/bin/bash
-#cd to /vagrant to usr dockerfile - Build image and run container app
-cd /vagrant
 
 # Build and Run docker container
 docker build -t api .

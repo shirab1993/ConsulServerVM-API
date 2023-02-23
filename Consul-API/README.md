@@ -22,7 +22,9 @@ chmod +x vagrant_up.sh
 ./vagrant_up.sh
 ~~~
 The script excute the commands:
+
 `vagrant up`  will spawn a VM according to the configuration written in the Vagrantfile, it will install and run consul-server and install docker on the machine.
+
 `vagrant ssh` give you access to the shell of the running Vagrant machine.
  
  
@@ -40,8 +42,11 @@ docker build -t api .
 docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api
 ~~~
 The script excute the commands:
+
 `docker build -t api .` use Dockerfile to build a docker image called api, and run python api service .
+
 `docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api` 
+
 run a container in background, binding the port 8080 ->5000 and create volume for Communicate with the Docker daemon from within a container.
 
 

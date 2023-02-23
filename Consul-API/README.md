@@ -1,48 +1,51 @@
-# Consul-API Exercise
-**Please read the following instructions before starting to implement your exercise, you don't want to miss any important instruction.**
+# Consul-API 
+**Read the following instructions.**
 
-### Creating your repository 
+### Requirements
 
-Please mirror this git repo using the instructions [here](https://help.github.com/articles/duplicating-a-repository). Then clone it locally. 
-(**Please DO NOT fork the repo**)
+1. Install virtualbox version:6.1
+2. Install vagrant(version:2.2.9)on your terminal.
 
-### Exercise
-This exercise includes two main parts:
-1. Building a [Consul](https://www.consul.io) server and exposing Consul API
-2. Building an API service that exposes some endpoints
 
-### Submitting your solution
-You may use one of the following coding languages: Python/Ruby.
+### Step one
+1. Clone this repository.
+2. change directory to: 
+~~~
+cd ConsulServerVM-API/Consul-API
+~~~
+3. Execute the script: vagrant_up.sh
+~~~
+chmod +x vagrant_up.sh
+~~~
 
-The exercise should be delivered as a GitHub repository in your private account, containing:
-1. Directory with all the modules of your service (providing a clear directory tree is an advantage).
-2. Dockerfile that runs the web framwork and copies the code to the container.
-3. Vagrantfile that spawns the Consul server.
-4. Basic instructions on how to use the Dockerfile and Vagrantfile, and examples for querying the service.
+~~~
+./vagrant_up.sh
+~~~
+The script excute the commands:
+`vagrant up`  will spawn a VM according to the configuration written in the Vagrantfile, it will install and run consul-server and install docker on the machine.
+`vagrant ssh` give you access to the shell of the running Vagrant machine.
+ 
+ 
+### Step two
+1. Execute the script: docker_build_run.sh
+~~~
+chmod +x docker_build_run.sh
+~~~
 
-Requirements:
-1. The API service that you build should be started by the Dockerfile and should print all logs/output to the container's shell.
-2. Use [Vagrant](https://www.vagrantup.com/intro/index.html) & [VirtualBox](https://www.virtualbox.org/) to build your Virtual Machine.
-3. `vagrant up` command should also start the Consul agent (it's ok if Consul will not run as a service).
-4. Consul UI should be accessible from your laptop's browser.
-5. As a sanity check for you Consul environment, make sure that the Consul cluster is functioning well with a known leader.
+~~~
+./docker_build_run.sh
+~~~
+The script excute the commands:
+`docker build -t api .` use Dockerfile to build a docker image called api, and run python api service .
+`docker run -d -p 8080:5000 -v /var/run/docker.sock:/var/run/docker.sock api` 
+run a container in background, binding the port 8080 ->5000 and create volume for Communicate with the Docker daemon from within a container.
 
-Nice to have:
-1. Pay attention to your code structure and organization in classes, functions and modules. Naming convention will also be taken into consideration.
-2. We will be looking at your commit history. A tidy commit history is an advantage.
-3. Register a Consul service on the VM (using a flat file). If you choose to deploy one, make sure you are able to change its state (critical, healthy, warning).
-3. Wrap and run Consul as a service.
 
-### Environment Requirements
-- 1 small VM (1 vCPU, 1G memory) running Ubuntu, has Consul server installed.
-- A functioning Consul cluster with known leader.
 
-### Exercise
-1. Create the Consul server VM with proper configuration file.
-   The server's API should be accessiable from your laptop to move on to the next step.
+### API Service
 
-2. Write a small API service that will expose the following routes:
-
+1. The API service expose the following routes:
+you should see the resonse http://192.168.50.10:8080
 ~~~
 GET  /v1/api/consulCluster/status
 GET  /v1/api/consulCluster/summary
@@ -58,9 +61,6 @@ Where:
 * Status 0 means down and 1 means up
 * Message should indicate when the sampling was successfull or give a relevant error message in case it is down
 
-Bonus:
-* If the server is down, include the reason in the message
-
 ##### Response example
 
 ~~~
@@ -74,49 +74,45 @@ This endpoint will sample the Consul API to get the following information about 
  - Cluster Leader IP and port
  - The internal protocol version used by Consul
 
-~~~
-{
-   "registered_nodes": <>,
-   "registered_services": <>,
-   "leader": <ip:port>,
-   "cluster_protocol": <>
- }
-~~~
-
 ##### Response example
-
 ~~~
 {
-   "registered_nodes": 5,
-   "registered_services": 9,
-   "leader": "1.2.3.4:8300",
-   "cluster_protocol": 3
- }
+"cluster_protocol":"1.10.3",
+"leader":"192.168.50.10",
+"num_nodes":1,
+"num_services":1
+}
 ~~~
+
 
 #### members
 This endpoint will sample the Consul API to get the list of registered nodes in the culster in the following format:
 
-`{"registered_nodes": []}`
-
 ##### Response example
-
 ~~~
 {
-  "registered_nodes": [
-    "vag1.dc.com",
-    "vag2.dc.com"
-  ]
+"registered_nodes":[
+"consul-server"
+ ]
 }
 ~~~
 
+
 #### systemInfo
-This endpoint will expose metrics taken from the docker container. Here we wish to see which system metrics you think are relevant when it comes to debugging OS.
-The result must include the number of cores and amount of memory that the VM has. Try to come up with at least 5 more system metrics.
-Result should be in the following format: 
+This endpoint will expose metrics taken from the docker container. 
 
 ~~~
-{"vCpus": <>, "MemoryGB": <>, <metric3>: <>}
+{
+"MemoryGB":1,
+"container_resource_limits":{"cpu_limit":0,"memory_limit":0},
+"container_restart_count":0,
+"container_version":"api",
+"cpu_percent":0.1,
+"disk_usage":4435161088,
+"memory_usage":179302400,
+"network_bytes_recv":29911,
+"network_bytes_sent":14322,
+"vCpus":1
+}
 ~~~
 
-...and so on
